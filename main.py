@@ -1,21 +1,37 @@
+from flask import Flask, render_template, request
+import pytesseract
+from PIL import Image
+import os
+
+# create flask app FIRST
+app = Flask(__name__)
+
+# Windows only tesseract path
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+
 @app.route("/extract", methods=["POST"])
 def extract():
-    try:
-        if "image" not in request.files:
-            return render_template("index.html", result="No file uploaded")
 
-        file = request.files["image"]
+    if "image" not in request.files:
+        return render_template("index.html", result="No file uploaded")
 
-        if file.filename == "":
-            return render_template("index.html", result="No file selected")
+    file = request.files["image"]
 
-        # Open and normalize the image
-        img = Image.open(file.stream)
-        img = img.convert("RGB")
+    if file.filename == "":
+        return render_template("index.html", result="No file selected")
 
-        text = pytesseract.image_to_string(img)
+    img = Image.open(file).convert("RGB")
+    text = pytesseract.image_to_string(img)
 
-        return render_template("index.html", result=text)
+    return render_template("index.html", result=text)
 
-    except Exception as e:
-        return render_template("index.html", result=f"Error: {str(e)}")
+
+if __name__ == "__main__":
+    app.run(debug=True)
