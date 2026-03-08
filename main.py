@@ -24,7 +24,7 @@ def extract():
     if file.filename == "":
         return render_template("index.html", result="No file selected")
 
-    img = Image.open(file)
+    img = Image.open(file).convert("RGB")   # important fix
     text = pytesseract.image_to_string(img)
 
     return render_template("index.html", result=text)
