@@ -1,37 +1,47 @@
-from flask import Flask, render_template, request
+import streamlit as st
 import pytesseract
 from PIL import Image
 import os
 
-# create flask app FIRST
-app = Flask(__name__)
-
-# Windows only tesseract path
+# Windows Tesseract Path
 if os.name == "nt":
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
+# Page settings
+st.set_page_config(
+    page_title="Image Text Extractor",
+    page_icon="📄",
+    layout="centered"
+)
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+# Title
+st.title("📄 Image Text Extractor")
+st.write("Upload an image and extract text from it.")
 
+# Upload image
+uploaded_file = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg"])
 
-@app.route("/extract", methods=["POST"])
-def extract():
+if uploaded_file is not None:
 
-    if "image" not in request.files:
-        return render_template("index.html", result="No file uploaded")
+    img = Image.open(uploaded_file)
 
-    file = request.files["image"]
+    # Show uploaded image
+    st.image(img, caption="Uploaded Image", use_container_width=True)
 
-    if file.filename == "":
-        return render_template("index.html", result="No file selected")
+    # OCR Processing
+    with st.spinner("Extracting text..."):
+        text = pytesseract.image_to_string(img)
 
-    img = Image.open(file).convert("RGB")
-    text = pytesseract.image_to_string(img)
+    st.subheader("Extracted Text")
 
-    return render_template("index.html", result=text)
+    # Text area for copy
+    st.text_area("Extracted Text", text, height=250)
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    # Copy instruction
+   
+# Footer
+st.markdown("---")
+st.markdown(
+    "<center>Created by <b>Narendra Krishnan KS (AIML)</b></center>",
+    unsafe_allow_html=True
+)

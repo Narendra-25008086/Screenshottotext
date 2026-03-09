@@ -1,4 +1,4 @@
-flask
+streamlit
 pytesseract
 pillow
-gunicorn
+streamlit-copy-to-clipboard
